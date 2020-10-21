@@ -1,7 +1,7 @@
 !pip install adafruit-io
 import os
 x = os.getenv('nikhila_3010')
-y = os.getenv('aio_PRdf59q0DMLqO269GhHWgfGPdnJ0')
+y = os.getenv('aio_vmlQ11kJFiYgphWTp67JhmSVoSUH')
 from Adafruit_IO import Client, Feed
 aio = Client(x,y)
 new = Feed(name='bot')
