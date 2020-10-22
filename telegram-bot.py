@@ -1,26 +1,53 @@
 !pip install adafruit-io
-import os
-x = os.getenv('nikhila_3010')
-y = os.getenv('aio_EIjL79FGgDc4hGvhB34GgCqJZVPW')
-from Adafruit_IO import Client, Feed
-aio = Client(x,y)
-new = Feed(name='bot')
-result = aio.create_feed(new)
- from  import DataAdafruit_IO
-!pip install python-telegram-bot
 from Adafruit_IO import Client,Data
-from telegram.ext import Updater,CommandHandler
-def on(bot,update):
-  chat_id = update.message.chat_id    
-  aio.create_data('bot',Data(value = 1))
-  bot.send_message(chat_id =chat_id,text ="Lights On")
-  def off(bot,update):
-  chat_id = update.message.chat_id
-  aio.create_data('bot',Data(value = 0))
-  bot.send_message(chat_id =chat_id,text ="Lights Off")
-  updater =Updater('1323642446:AAE1MdzDxZjeynYpTL7I4zFg6W_Pp4cQ0MA')
-dp = updater.dispatcher
-dp.add_handler(CommandHandler('on',on))
-dp.add_handler(CommandHandler('off',off))
-updater.start_polling()
+import os
+
+ADAFRUIT_IO_USERNAME = os.getenv('nikhila_3010')
+ADAFRUIT_IO_KEY = os.getenv('aio_Rwnu50IcFU0r1MbH6PfS1BKWnlnA')
+TOKEN = os.getenv('1198743218:AAH8R-66wHQiPLxruRj_G44YOIy8G1ObAos')
+aio = Client(ADAFRUIT_IO_USERNAME,ADAFRUIT_IO_KEY)
+!pip install python-telegram-bot
+  
+from telegram.ext import Updater,CommandHandler,MessageHandler,Filters
+import os
+def off(update, context):
+  context.bot.send_message(chat_id=update.effective_chat.id, text="Light is turning off")
+  context.bot.send_photo(chat_id=update.effective_chat.id,photo='https://www.123rf.com/photo_12676342_filament-lamp-on-a-white-background-illustration-for-design.html')
+  send_value(0)
+def on(update, context):
+  context.bot.send_message(chat_id=update.effective_chat.id, text="Light is turning on")
+  context.bot.send_photo(chat_id=update.effective_chat.id,photo='https://www.123rf.com/photo_48123160_stock-vector-bright-glowing-incandescent-light-bulb-on-a-white-background.html')
+  send_value(1)
+
+def send_value(value):
+  feed = aio.feeds('bot')
+  aio.send_data(feed.key,value)
+
+def input_message(update, context):
+  text=update.message.text
+  if text == 'on':
+    send_value(1)
+    context.bot.send_message(chat_id=update.effective_chat.id,text="Light is turning on")
+    context.bot.send_photo(chat_id=update.effective_chat.id,photo='https://www.123rf.com/photo_48123160_stock-vector-bright-glowing-incandescent-light-bulb-on-a-white-background.html')
+  elif text == 'off':
+    send_value(0)
+    context.bot.send_message(chat_id=update.effective_chat.id,text="Light is turning off")
+    context.bot.send_photo(chat_id=update.effective_chat.id,photo='https://www.123rf.com/photo_12676342_filament-lamp-on-a-white-background-illustration-for-design.html')
+
+    
+def start(update,context):
+  start_message='''
+/off :To turn OFF the Light
+/on :To turn ON the Light
+'''
+  context.bot.send_message(chat_id=update.effective_chat.id, text=start_message)
+
+
+updater =Updater('1198743218:AAH8R-66wHQiPLxruRj_G44YOIy8G1ObAos')
+dispatcher = updater.dispatcher
+dispatcher.add_handler(CommandHandler('off',off))
+dispatcher.add_handler(CommandHandler('on',on))
+dispatcher.add_handler(CommandHandler('start',start))
+dispatcher.add_handler(MessageHandler(Filters.text & (~Filters.command),input_message))
+updater.start_polling
 updater.idle()
